@@ -2,7 +2,6 @@
 
 import socket
 from node import *
-from encoder import *
 from bsonrpc import JSONRpc
 from bsonrpc.exceptions import FramingError
 from bsonrpc.framing import (JSONFramingNetstring, JSONFramingNone, JSONFramingRFC7464)
@@ -10,7 +9,6 @@ from bsonrpc.framing import (JSONFramingNetstring, JSONFramingNone, JSONFramingR
 # Cut-the-corners TCP Client:
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('localhost', 50001))
-
 rpc = JSONRpc(s,framing_cls=JSONFramingNone)
 server = rpc.get_peer_proxy()
 
@@ -19,7 +17,8 @@ leaf1 = node("leaf1")
 leaf2 = node("leaf2")
 root = node("root", [leaf1, leaf1, leaf2])
 print("Before request...")
-print(root.encoder())
+print(root.jsone())
 # do this increment remotely:
-# print("After request...")
-# server.increment(json.dumps(root.__dict__)).show()
+print("After request...")
+print(server.nop(root.jsone()))
+s.close()

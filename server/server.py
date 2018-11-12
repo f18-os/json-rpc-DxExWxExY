@@ -2,9 +2,8 @@
 # minimalistic server example from 
 # https://github.com/seprich/py-bson-rpc/blob/master/README.md#quickstart
 
-import socket
+import socket, ast
 from node import *
-from encoder import *
 from bsonrpc import JSONRpc
 from bsonrpc import request, service_class
 from bsonrpc.exceptions import FramingError
@@ -23,15 +22,25 @@ class ServerServices(object):
   @request
   def nop(self, txt):
     print(txt)
-    return txt
+    obj = inc(txt)
+    return obj.jsone()
 
-  @request
-  def increment(graph):
-    graph.val += 1;
-    for c in graph.children:
-        increment(c)
-    graph.show()
-    return graph
+def inc(data):
+  graph = jsond(data)
+  graph.val += 1;
+  for c in graph.children:
+      inc(c)
+  graph.show()
+  return graph
+
+def jsond(data):
+  obj = ast.literal_eval(data)
+  print(obj)
+  # return node("Root")
+  children = []
+  for child in obj['children']:
+      children.append(jsond(child))
+  return node(obj['name'], children, obj['val'])
 
 # Quick-and-dirty TCP Server:
 ss = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
